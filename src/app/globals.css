@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f5f5;
-  --foreground: #171717;
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --foreground: #1a202c;
 }
 
 @theme inline {
@@ -12,44 +12,342 @@
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Base theme variables - Interface colors only */
+:root {
+  /* Database theme (default) */
+  --theme-primary: #1e40af;
+  --theme-secondary: #3b82f6;
+  --theme-accent: #60a5fa;
+  --theme-bg-light: #eff6ff;
+  --theme-bg-dark: #1e3a8a;
 }
 
-/* Prism.js custom styles */
+/* Theme variations - Interface colors only */
+[data-theme="database"] {
+  --theme-primary: #1e40af;
+  --theme-secondary: #3b82f6;
+  --theme-accent: #60a5fa;
+  --theme-bg-light: #eff6ff;
+  --theme-bg-dark: #1e3a8a;
+}
+
+[data-theme="ocean"] {
+  --theme-primary: #0891b2;
+  --theme-secondary: #06b6d4;
+  --theme-accent: #67e8f9;
+  --theme-bg-light: #ecfeff;
+  --theme-bg-dark: #164e63;
+}
+
+[data-theme="forest"] {
+  --theme-primary: #059669;
+  --theme-secondary: #10b981;
+  --theme-accent: #6ee7b7;
+  --theme-bg-light: #ecfdf5;
+  --theme-bg-dark: #064e3b;
+}
+
+[data-theme="sunset"] {
+  --theme-primary: #dc2626;
+  --theme-secondary: #f59e0b;
+  --theme-accent: #fbbf24;
+  --theme-bg-light: #fef3c7;
+  --theme-bg-dark: #92400e;
+}
+
+[data-theme="default"] {
+  --theme-primary: #7c3aed;
+  --theme-secondary: #a855f7;
+  --theme-accent: #c084fc;
+  --theme-bg-light: #f3e8ff;
+  --theme-bg-dark: #581c87;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Theme-aware backgrounds */
+.theme-bg {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #1a202c;
+}
+
+.dark .theme-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f8fafc;
+}
+
+/* Database-inspired styling - Improved dark mode contrast */
+.database-code-block {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #64748b;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.dark .database-code-block {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #475569;
+  border-left: 3px solid #94a3b8;
+}
+
+/* Custom component classes */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Theme-aware components */
+.theme-gradient {
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+}
+
+.theme-text-gradient {
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.theme-header-bg {
+  background: linear-gradient(135deg, var(--theme-bg-light), rgba(255, 255, 255, 0.8));
+}
+
+.dark .theme-header-bg {
+  background: linear-gradient(135deg, var(--theme-bg-dark), rgba(30, 41, 59, 0.8));
+}
+
+.theme-desc-bg {
+  background: linear-gradient(135deg, var(--theme-bg-light), rgba(255, 255, 255, 0.6));
+  border-color: var(--theme-accent);
+}
+
+.dark .theme-desc-bg {
+  background: linear-gradient(135deg, var(--theme-bg-dark), rgba(30, 41, 59, 0.6));
+  border-color: var(--theme-primary);
+}
+
+.theme-result-bg {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-color: #e2e8f0;
+}
+
+.dark .theme-result-bg {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border-color: #475569;
+}
+
+.theme-version-badge {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-color: #f59e0b;
+}
+
+.dark .theme-version-badge {
+  background: linear-gradient(135deg, #92400e, #b45309);
+  border-color: #d97706;
+}
+
+.theme-version-count {
+  background: var(--theme-secondary);
+  color: white;
+}
+
+.theme-icon-color {
+  color: var(--theme-primary);
+}
+
+.theme-focus-ring {
+  --tw-ring-color: var(--theme-accent);
+}
+
+.theme-border-focus {
+  border-color: var(--theme-primary);
+}
+
+/* Enhanced search styling */
+.search-enhanced {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.dark .search-enhanced {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(51, 65, 85, 0.95));
+  border: 2px solid rgba(71, 85, 105, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced Prism.js styles - Improved SQL syntax colors */
 pre[class*="language-"] {
   margin: 0;
-  padding: 1rem;
-  background: #f8f9fa !important;
-  border-radius: 0.375rem;
+  padding: 0;
+  background: transparent !important;
   overflow-x: auto;
 }
 
 code[class*="language-"] {
   background: none;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 0.875rem;
+  line-height: 1.6;
+  color: #374151;
+  font-weight: 400;
+  transition: color 0.3s ease;
 }
 
+.dark code[class*="language-"] {
+  color: #e5e7eb;
+}
+
+/* Light mode SQL syntax highlighting */
 .token.keyword {
-  color: #0066cc;
-  font-weight: bold;
+  color: #1e40af !important;
+  font-weight: 600;
 }
 
 .token.string {
-  color: #008000;
+  color: #059669 !important;
 }
 
 .token.number {
-  color: #ff6600;
+  color: #dc2626 !important;
 }
 
 .token.operator {
-  color: #666;
+  color: #6b7280 !important;
 }
 
 .token.punctuation {
-  color: #999;
+  color: #9ca3af !important;
+}
+
+.token.function {
+  color: #7c3aed !important;
+}
+
+.token.comment {
+  color: #6b7280 !important;
+  font-style: italic;
+}
+
+/* Dark mode SQL syntax - Better contrast and readability */
+.dark .token.keyword {
+  color: #93c5fd !important;
+  font-weight: 600;
+}
+
+.dark .token.string {
+  color: #6ee7b7 !important;
+}
+
+.dark .token.number {
+  color: #fca5a5 !important;
+}
+
+.dark .token.operator {
+  color: #d1d5db !important;
+}
+
+.dark .token.punctuation {
+  color: #d1d5db !important;
+}
+
+.dark .token.function {
+  color: #c4b5fd !important;
+}
+
+.dark .token.comment {
+  color: #9ca3af !important;
+  font-style: italic;
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: relative;
+}
+
+.tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--theme-secondary), var(--theme-accent));
+}
+
+/* Modal backdrop blur */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Enhanced button groups */
+.button-group {
+  display: flex;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px;
+  border-radius: 8px;
+}
+
+.dark .button-group {
+  background: rgba(0, 0, 0, 0.2);
 }
