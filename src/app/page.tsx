@@ -309,7 +309,7 @@ export default function Home() {
       setVisibility('private');
     } catch (error) {
       console.error('Failed to save query:', error);
-      alert(`Failed to save query: ${error.message}`);
+      alert(`Failed to save query: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }

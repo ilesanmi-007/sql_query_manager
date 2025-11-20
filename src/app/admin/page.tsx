@@ -187,7 +187,7 @@ export default function AdminDashboard() {
     
     try {
       await storage.deleteQuery(queryId);
-      setQueries(queries.filter(q => q.id !== queryId));
+      setQueries(queries.filter(q => q.id.toString() !== queryId));
     } catch (error) {
       console.error('Failed to delete query:', error);
     }
@@ -366,7 +366,7 @@ export default function AdminDashboard() {
                           </span>
                         )}
                         <button
-                          onClick={() => deleteQuery(query.id)}
+                          onClick={() => deleteQuery(query.id.toString())}
                           className="text-red-600 hover:text-red-800 text-sm"
                         >
                           Delete
