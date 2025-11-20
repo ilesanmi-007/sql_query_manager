@@ -1,39 +1,95 @@
 # SQL Query Manager
 
-A modern, feature-rich web application for managing, organizing, and tracking SQL queries with version control, tagging, and export capabilities.
+A modern, full-featured web application for managing, organizing, and sharing SQL queries with advanced collaboration features.
 
-## 🚀 Features
+## 🚀 Overview
 
-### Core Functionality
-- **Query Management**: Create, edit, and organize SQL queries with descriptions
-- **Version Control**: Track query versions with timestamps and edit history
-- **Result Storage**: Save query results as text or images
-- **Favorites System**: Mark important queries as favorites for quick access
-- **Tag Management**: Organize queries with custom tags and categories
-- **Search & Filter**: Find queries by name, tags, or content
+SQL Query Manager is a comprehensive Next.js application that provides developers and data analysts with a powerful platform to store, organize, execute, and share SQL queries. Built with modern web technologies, it offers both individual productivity features and team collaboration capabilities.
+
+## ✨ Key Features
+
+### 📝 Query Management
+- **Create & Store**: Save SQL queries with names, descriptions, and metadata
+- **Version Control**: Track query versions and changes over time
+- **Rich Editor**: Syntax highlighting and code formatting for SQL
+- **Result Storage**: Save query results and screenshots for reference
+- **Favorites System**: Mark important queries for quick access
+
+### 🏷️ Organization & Discovery
+- **Tag System**: Organize queries with custom tags and categories
+- **Advanced Search**: Find queries by name, description, tags, or content
+- **Filtering**: Filter by favorites, tags, visibility, and date ranges
+- **Smart Categorization**: Automatic organization suggestions
+
+### 👥 Collaboration & Sharing
+- **Public/Private Queries**: Control query visibility and sharing
+- **Public Query Feed**: Browse and discover queries shared by the community
+- **User Profiles**: View queries by specific users
+- **Read-only Sharing**: Safe sharing without edit permissions
+
+### 🎨 User Experience
 - **Dark/Light Mode**: Toggle between themes for comfortable viewing
+- **Color Themes**: Multiple color schemes (Ocean, Forest, Sunset, Purple, Rose, etc.)
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Intuitive Interface**: Clean, modern UI with excellent usability
 
-### Advanced Features
-- **Export/Import**: Backup and restore queries in JSON format
-- **SQL Validation**: Basic syntax validation for SQL queries
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Local Storage**: All data persists locally in your browser
+### 🔐 Security & Authentication
+- **User Authentication**: Secure login system with NextAuth.js
+- **Row-Level Security**: Database-level access control
+- **Owner Permissions**: Only query owners can edit or change visibility
+- **Admin Panel**: Administrative controls for user and query management
 
-## 🛠️ Tech Stack
+### ☁️ Supabase Cloud Storage
+The application leverages **Supabase** as its primary cloud database solution, providing:
+- **PostgreSQL Database**: Robust, scalable relational database in the cloud
+- **Real-time Subscriptions**: Live updates when queries are shared or modified
+- **Row Level Security (RLS)**: Database-level access control for user data protection
+- **Authentication Integration**: Seamless user management with built-in auth
+- **Automatic Backups**: Enterprise-grade data protection and recovery
+- **Global CDN**: Fast data access from anywhere in the world
+- **RESTful APIs**: Auto-generated APIs for all database operations
 
-- **Framework**: Next.js 15.5.2 with React 19
-- **Styling**: Tailwind CSS with custom components
-- **Icons**: Heroicons for consistent UI elements
-- **Syntax Highlighting**: Prism.js for SQL code display
-- **Storage**: Browser localStorage for data persistence
-- **Build Tool**: Turbopack for fast development and builds
+### 💾 Data Storage Options
+- **Supabase Integration**: Cloud-based PostgreSQL with real-time features
+- **Local Storage**: Client-side storage for offline usage
+- **Flexible Backend**: Adaptable storage layer supporting multiple backends
 
-## 📦 Installation
+## 🛠️ Technology Stack
+
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **React 19** - Modern React with latest features
+- **TypeScript** - Type-safe development
+- **Tailwind CSS 4** - Utility-first styling
+- **Heroicons** - Beautiful SVG icons
+- **Prism.js** - SQL syntax highlighting
+
+### Backend & Database
+- **Supabase** - PostgreSQL database with real-time subscriptions
+- **NextAuth.js** - Authentication and session management
+- **Row Level Security** - Database-level access control
+- **RESTful APIs** - Clean API design with proper HTTP methods
+
+### Development & Testing
+- **Jest** - Unit and integration testing
+- **React Testing Library** - Component testing
+- **ESLint** - Code linting and formatting
+- **TypeScript** - Static type checking
+- **Turbopack** - Fast development and builds
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js 18+ 
+- npm, yarn, or pnpm
+- Supabase account (for cloud storage)
+
+### Quick Start
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ilesanmi-007/SQL_saving_box.git
-   cd sql-query-manager
+   git clone https://github.com/ilesanmi-007/SQL-Query-Manager.git
+   cd SQL-Query-Manager
    ```
 
 2. **Install dependencies**
@@ -45,7 +101,22 @@ A modern, feature-rich web application for managing, organizing, and tracking SQ
    pnpm install
    ```
 
-3. **Run the development server**
+3. **Environment setup**
+   ```bash
+   cp .env.local.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+4. **Database setup**
+   ```bash
+   # Run the schema in your Supabase project
+   psql -f supabase-schema.sql
+   
+   # Apply visibility migration if upgrading
+   psql -f migration-add-visibility.sql
+   ```
+
+5. **Start development server**
    ```bash
    npm run dev
    # or
@@ -54,8 +125,24 @@ A modern, feature-rich web application for managing, organizing, and tracking SQ
    pnpm dev
    ```
 
-4. **Open your browser**
+6. **Open in browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🔧 Configuration
+
+### Environment Variables
+```env
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-key
+SUPABASE_URL=your-supabase-url
+SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+### Database Schema
+The application uses PostgreSQL with the following main tables:
+- `users` - User accounts and profiles
+- `queries` - SQL queries with metadata
+- `tags` - Query categorization system
 
 ## 🎯 Usage Guide
 
@@ -98,13 +185,17 @@ sql-query-manager/
 ├── src/
 │   ├── app/
 │   │   ├── saved/           # Saved queries page
+│   │   ├── public/          # Public queries page
+│   │   ├── api/             # API routes
 │   │   ├── globals.css      # Global styles
 │   │   ├── layout.tsx       # Root layout
 │   │   └── page.tsx         # Main query creation page
+│   ├── components/          # React components
 │   ├── utils/
 │   │   ├── exportImport.ts  # Export/import functionality
 │   │   ├── sqlValidator.ts  # SQL syntax validation
 │   │   └── tagManager.ts    # Tag management system
+│   ├── lib/                 # Library functions
 │   └── types/               # TypeScript type definitions
 ├── package.json
 └── README.md
@@ -116,201 +207,8 @@ sql-query-manager/
 - `npm run build` - Build production application
 - `npm start` - Start production server
 - `npm run lint` - Run ESLint for code quality
-
-## 🎨 Customization
-
-### Themes
-The application supports both light and dark themes. Toggle using the sun/moon icon in the header.
-
-### Tags
-Create custom tags with:
-- Custom names and descriptions
-- Color coding for visual organization
-- Hierarchical categorization
-
-### Storage
-All data is stored locally in your browser's localStorage. To backup your data:
-1. Use the export feature to download a JSON file
-2. Import the file on any device to restore your queries
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to [Vercel](https://vercel.com)
-3. Deploy with zero configuration
-
-### Other Platforms
-The application can be deployed on any platform that supports Next.js:
-- Netlify
-- AWS Amplify
-- Railway
-- Render
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🐛 Bug Reports & Feature Requests
-
-Please use the [GitHub Issues](https://github.com/ilesanmi-007/SQL_saving_box/issues) page to report bugs or request new features.
-
-## 📞 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Check existing documentation
-- Review the code examples in the source
-- Email: ilesanmi3451@gmail.com
-
----
-
-**Built with ❤️ using Next.js and modern web technologies**
-# SQL Query Manager
-
-A modern, full-featured web application for managing, organizing, and sharing SQL queries with advanced collaboration features.
-
-## 🚀 Overview
-
-SQL Query Manager is a comprehensive Next.js application that provides developers and data analysts with a powerful platform to store, organize, execute, and share SQL queries. Built with modern web technologies, it offers both individual productivity features and team collaboration capabilities.
-
-## ✨ Key Features
-
-### 📝 Query Management
-- **Create & Store**: Save SQL queries with names, descriptions, and metadata
-- **Version Control**: Track query versions and changes over time
-- **Rich Editor**: Syntax highlighting and code formatting for SQL
-- **Result Storage**: Save query results and screenshots for reference
-- **Favorites System**: Mark important queries for quick access
-
-### 🏷️ Organization & Discovery
-- **Tag System**: Organize queries with custom tags and categories
-- **Advanced Search**: Find queries by name, description, tags, or content
-- **Filtering**: Filter by favorites, tags, visibility, and date ranges
-- **Smart Categorization**: Automatic organization suggestions
-
-### 👥 Collaboration & Sharing
-- **Public/Private Queries**: Control query visibility and sharing
-- **Public Query Feed**: Browse and discover queries shared by the community
-- **User Profiles**: View queries by specific users
-- **Read-only Sharing**: Safe sharing without edit permissions
-
-### 🎨 User Experience
-- **Dark/Light Mode**: Toggle between themes for comfortable viewing
-- **Color Themes**: Multiple color schemes (Ocean, Forest, Sunset, Purple, Rose, etc.)
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
-- **Intuitive Interface**: Clean, modern UI with excellent usability
-
-### 🔐 Security & Authentication
-- **User Authentication**: Secure login system with NextAuth.js
-- **Row-Level Security**: Database-level access control
-- **Owner Permissions**: Only query owners can edit or change visibility
-- **Admin Panel**: Administrative controls for user and query management
-
-### 💾 Data Storage Options
-- **Supabase Integration**: Cloud-based PostgreSQL with real-time features
-- **Local Storage**: Client-side storage for offline usage
-- **Flexible Backend**: Adaptable storage layer supporting multiple backends
-
-### ☁️ Supabase Cloud Storage
-The application leverages **Supabase** as its primary cloud database solution, providing:
-- **PostgreSQL Database**: Robust, scalable relational database in the cloud
-- **Real-time Subscriptions**: Live updates when queries are shared or modified
-- **Row Level Security (RLS)**: Database-level access control for user data protection
-- **Authentication Integration**: Seamless user management with built-in auth
-- **Automatic Backups**: Enterprise-grade data protection and recovery
-- **Global CDN**: Fast data access from anywhere in the world
-- **RESTful APIs**: Auto-generated APIs for all database operations
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **React 19** - Modern React with latest features
-- **TypeScript** - Type-safe development
-- **Tailwind CSS 4** - Utility-first styling
-- **Heroicons** - Beautiful SVG icons
-
-### Backend & Database
-- **Supabase** - PostgreSQL database with real-time subscriptions
-- **NextAuth.js** - Authentication and session management
-- **Row Level Security** - Database-level access control
-- **RESTful APIs** - Clean API design with proper HTTP methods
-
-### Development & Testing
-- **Jest** - Unit and integration testing
-- **React Testing Library** - Component testing
-- **ESLint** - Code linting and formatting
-- **TypeScript** - Static type checking
-
-## 📦 Installation & Setup
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-- Supabase account (for cloud storage)
-
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/ilesanmi-007/SQL-Query-Manager.git
-   cd SQL-Query-Manager
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment setup**
-   ```bash
-   cp .env.local.example .env.local
-   # Edit .env.local with your configuration
-   ```
-
-4. **Database setup**
-   ```bash
-   # Run the schema in your Supabase project
-   psql -f supabase-schema.sql
-   
-   # Apply visibility migration if upgrading
-   psql -f migration-add-visibility.sql
-   ```
-
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-6. **Open in browser**
-   ```
-   http://localhost:3000
-   ```
-
-## 🔧 Configuration
-
-### Environment Variables
-```env
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key
-SUPABASE_URL=your-supabase-url
-SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-### Database Schema
-The application uses PostgreSQL with the following main tables:
-- `users` - User accounts and profiles
-- `queries` - SQL queries with metadata
-- `tags` - Query categorization system
+- `npm test` - Run Jest tests
+- `npm run test:watch` - Run tests in watch mode
 
 ## 🎯 Use Cases
 
@@ -384,7 +282,43 @@ npm test -- visibility.test.ts
 - Restore previous versions when needed
 - Maintain complete audit trail
 
+## 🎨 Customization
+
+### Themes
+The application supports both light and dark themes. Toggle using the sun/moon icon in the header.
+
+### Tags
+Create custom tags with:
+- Custom names and descriptions
+- Color coding for visual organization
+- Hierarchical categorization
+
+### Storage
+All data is stored locally in your browser's localStorage. To backup your data:
+1. Use the export feature to download a JSON file
+2. Import the file on any device to restore your queries
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+1. Push your code to GitHub
+2. Connect your repository to [Vercel](https://vercel.com)
+3. Deploy with zero configuration
+
+### Other Platforms
+The application can be deployed on any platform that supports Next.js:
+- Netlify
+- AWS Amplify
+- Railway
+- Render
+
 ## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
 - Code style and standards
@@ -394,14 +328,14 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is open source and available under the [MIT License](LICENSE).
 
 ## 🆘 Support
 
 - **Documentation**: Check the `/docs` folder for detailed guides
-- **Issues**: Report bugs via GitHub Issues
+- **Issues**: Report bugs via [GitHub Issues](https://github.com/ilesanmi-007/SQL-Query-Manager/issues)
 - **Discussions**: Join community discussions in GitHub Discussions
-- **Email**: Contact the maintainers for enterprise support
+- **Email**: ilesanmi3451@gmail.com
 
 ## 🗺️ Roadmap
 
