@@ -23,6 +23,7 @@ export default function SavedQueries() {
   const router = useRouter();
   const [queries, setQueries] = useState<Query[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [colorTheme, setColorTheme] = useState<ColorTheme>('ocean');
@@ -155,11 +156,15 @@ export default function SavedQueries() {
     }
   };
 
-  const filteredQueries = queries.filter(query =>
-    query.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    query.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    query.sql.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredQueries = queries.filter(query => {
+    const matchesSearch = query.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      query.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      query.sql.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesDate = !dateFilter || query.date === dateFilter;
+    
+    return matchesSearch && matchesDate;
+  });
 
   const themeColors = getThemeColors();
 
@@ -251,24 +256,51 @@ export default function SavedQueries() {
           </p>
         </div>
 
-        {/* Search */}
+        {/* Search and Filters */}
         <div className="mb-6">
-          <div className="relative max-w-md mx-auto">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search queries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-gray-900 dark:text-gray-100"
-            />
+          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search queries..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-gray-900 dark:text-gray-100"
+              />
+            </div>
+            
+            {/* Date Filter */}
+            <div className="relative">
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-gray-900 dark:text-gray-100"
+                title="Filter by date"
+              />
+            </div>
+            
+            {/* Clear Filters */}
+            {(searchTerm || dateFilter) && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setDateFilter('');
+                }}
+                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors"
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
 
         {filteredQueries.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">
-              {searchTerm ? 'No queries match your search.' : 'No saved queries yet.'}
+              {(searchTerm || dateFilter) ? 'No queries match your filters.' : 'No saved queries yet.'}
             </p>
           </div>
         ) : (
