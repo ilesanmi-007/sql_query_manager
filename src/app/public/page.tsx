@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MagnifyingGlassIcon, SunIcon, MoonIcon, Squares2X2Icon, ListBulletIcon, SwatchIcon, XMarkIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, Squares2X2Icon, ListBulletIcon, SwatchIcon, XMarkIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { Query } from '../../types';
 
 type ColorTheme = 'default' | 'ocean' | 'forest' | 'sunset' | 'purple' | 'rose' | 'amber' | 'teal' | 'indigo' | 'pink';
@@ -12,31 +12,13 @@ export default function PublicQueries() {
   const [queries, setQueries] = useState<Query[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [colorTheme, setColorTheme] = useState<ColorTheme>('ocean');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
 
   useEffect(() => {
-    // Sync theme state with DOM and localStorage
-    const savedTheme = localStorage.getItem('theme');
     const savedColorTheme = localStorage.getItem('colorTheme') as ColorTheme;
     const savedViewMode = localStorage.getItem('viewMode') as ViewMode;
-    
-    // Fix: Properly handle light mode
-    const isDark = savedTheme === 'dark' || (savedTheme === null);
-    
-    setIsDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    
-    // Set default theme if none exists
-    if (savedTheme === null) {
-      localStorage.setItem('theme', 'dark');
-    }
     
     if (savedColorTheme) {
       setColorTheme(savedColorTheme);
@@ -56,15 +38,6 @@ export default function PublicQueries() {
 
     // Listen for theme changes from other tabs
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'theme') {
-        const newIsDark = e.newValue === 'dark';
-        setIsDarkMode(newIsDark);
-        if (newIsDark) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      }
       if (e.key === 'colorTheme') {
         setColorTheme(e.newValue as ColorTheme);
       }
@@ -73,19 +46,6 @@ export default function PublicQueries() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-    
-    // Force DOM update
-    if (newTheme) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const changeColorTheme = (theme: ColorTheme) => {
     setColorTheme(theme);
@@ -260,18 +220,6 @@ export default function PublicQueries() {
                   </div>
                 </div>
               </div>
-
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
-              >
-                {isDarkMode ? (
-                  <SunIcon className="w-5 h-5 text-yellow-500" />
-                ) : (
-                  <MoonIcon className="w-5 h-5 text-gray-600" />
-                )}
-              </button>
             </div>
           </div>
         </nav>
