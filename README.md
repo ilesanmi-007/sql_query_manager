@@ -1,361 +1,304 @@
-# SQL Query Manager
+# SQL Query Manager — Developer Quick Reference
 
-A modern, full-featured web application for managing, organizing, and sharing SQL queries with advanced collaboration features.
-
-## 🚀 Overview
-
-SQL Query Manager is a comprehensive Next.js application that provides developers and data analysts with a powerful platform to store, organize, execute, and share SQL queries. Built with modern web technologies, it offers both individual productivity features and team collaboration capabilities.
-
-## ✨ Key Features
-
-### 📝 Query Management
-- **Create & Store**: Save SQL queries with names, descriptions, and metadata
-- **Version Control**: Track query versions and changes over time
-- **Rich Editor**: Syntax highlighting and code formatting for SQL
-- **Result Storage**: Save query results and screenshots for reference
-- **Favorites System**: Mark important queries for quick access
-
-### 🏷️ Organization & Discovery
-- **Tag System**: Organize queries with custom tags and categories
-- **Advanced Search**: Find queries by name, description, tags, or content
-- **Filtering**: Filter by favorites, tags, visibility, and date ranges
-- **Smart Categorization**: Automatic organization suggestions
-
-### 👥 Collaboration & Sharing
-- **Public/Private Queries**: Control query visibility and sharing
-- **Public Query Feed**: Browse and discover queries shared by the community
-- **User Profiles**: View queries by specific users
-- **Read-only Sharing**: Safe sharing without edit permissions
-
-### 🎨 User Experience
-- **Dark/Light Mode**: Toggle between themes for comfortable viewing
-- **Color Themes**: Multiple color schemes (Ocean, Forest, Sunset, Purple, Rose, etc.)
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
-- **Intuitive Interface**: Clean, modern UI with excellent usability
-
-### 🔐 Security & Authentication
-- **User Authentication**: Secure login system with NextAuth.js
-- **Row-Level Security**: Database-level access control
-- **Owner Permissions**: Only query owners can edit or change visibility
-- **Admin Panel**: Administrative controls for user and query management
-
-### ☁️ Supabase Cloud Storage
-The application leverages **Supabase** as its primary cloud database solution, providing:
-- **PostgreSQL Database**: Robust, scalable relational database in the cloud
-- **Real-time Subscriptions**: Live updates when queries are shared or modified
-- **Row Level Security (RLS)**: Database-level access control for user data protection
-- **Authentication Integration**: Seamless user management with built-in auth
-- **Automatic Backups**: Enterprise-grade data protection and recovery
-- **Global CDN**: Fast data access from anywhere in the world
-- **RESTful APIs**: Auto-generated APIs for all database operations
-
-### 💾 Data Storage Options
-- **Supabase Integration**: Cloud-based PostgreSQL with real-time features
-- **Local Storage**: Client-side storage for offline usage
-- **Flexible Backend**: Adaptable storage layer supporting multiple backends
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **React 19** - Modern React with latest features
-- **TypeScript** - Type-safe development
-- **Tailwind CSS 4** - Utility-first styling
-- **Heroicons** - Beautiful SVG icons
-- **Prism.js** - SQL syntax highlighting
-
-### Backend & Database
-- **Supabase** - PostgreSQL database with real-time subscriptions
-- **NextAuth.js** - Authentication and session management
-- **Row Level Security** - Database-level access control
-- **RESTful APIs** - Clean API design with proper HTTP methods
-
-### Development & Testing
-- **Jest** - Unit and integration testing
-- **React Testing Library** - Component testing
-- **ESLint** - Code linting and formatting
-- **TypeScript** - Static type checking
-- **Turbopack** - Fast development and builds
-
-## 📦 Installation & Setup
-
-### Prerequisites
-- Node.js 18+ 
-- npm, yarn, or pnpm
-- Supabase account (for cloud storage)
-
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/ilesanmi-007/SQL-Query-Manager.git
-   cd SQL-Query-Manager
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Environment setup**
-   ```bash
-   cp .env.local.example .env.local
-   # Edit .env.local with your configuration
-   ```
-
-4. **Database setup**
-   ```bash
-   # Run the schema in your Supabase project
-   psql -f supabase-schema.sql
-   
-   # Apply visibility migration if upgrading
-   psql -f migration-add-visibility.sql
-   ```
-
-5. **Start development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-6. **Open in browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## 🔧 Configuration
-
-### Environment Variables
-```env
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key
-SUPABASE_URL=your-supabase-url
-SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-### Database Schema
-The application uses PostgreSQL with the following main tables:
-- `users` - User accounts and profiles
-- `queries` - SQL queries with metadata
-- `tags` - Query categorization system
-
-## 🎯 Usage Guide
-
-### Creating a New Query
-1. Fill in the query name and description
-2. Write your SQL query in the code editor
-3. Add query results (text or upload an image)
-4. Select relevant tags or create new ones
-5. Mark as favorite if needed
-6. Click "Save Query" to store
-
-### Managing Saved Queries
-- **View All**: Navigate to `/saved` to see all stored queries
-- **Search**: Use the search bar to find specific queries
-- **Filter**: Filter by tags, favorites, or date ranges
-- **Edit**: Click on any query to modify and create new versions
-- **Delete**: Remove queries you no longer need
-
-### Version Control
-- Each edit creates a new version automatically
-- View version history with timestamps
-- Compare different versions of the same query
-- Restore previous versions when needed
-
-### Tag Management
-- Create custom tags for better organization
-- Assign multiple tags to queries
-- Filter queries by specific tags
-- Manage tag colors and descriptions
-
-### Export & Import
-- **Export**: Download all queries as a JSON backup file
-- **Import**: Upload and restore queries from backup files
-- **Selective Import**: Choose which queries to import
-
-## 📁 Project Structure
-
-```
-sql-query-manager/
-├── src/
-│   ├── app/
-│   │   ├── saved/           # Saved queries page
-│   │   ├── public/          # Public queries page
-│   │   ├── api/             # API routes
-│   │   ├── globals.css      # Global styles
-│   │   ├── layout.tsx       # Root layout
-│   │   └── page.tsx         # Main query creation page
-│   ├── components/          # React components
-│   ├── utils/
-│   │   ├── exportImport.ts  # Export/import functionality
-│   │   ├── sqlValidator.ts  # SQL syntax validation
-│   │   └── tagManager.ts    # Tag management system
-│   ├── lib/                 # Library functions
-│   └── types/               # TypeScript type definitions
-├── package.json
-└── README.md
-```
-
-## 🔧 Available Scripts
-
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build production application
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint for code quality
-- `npm test` - Run Jest tests
-- `npm run test:watch` - Run tests in watch mode
-
-## 🎯 Use Cases
-
-### For Individual Developers
-- Store frequently used SQL queries
-- Build a personal knowledge base of database operations
-- Track query performance and results over time
-- Organize queries by project or functionality
-
-### For Data Teams
-- Share common queries across team members
-- Collaborate on complex data analysis
-- Maintain a centralized query repository
-- Document data workflows and procedures
-
-### For Organizations
-- Create a company-wide SQL knowledge base
-- Standardize common database operations
-- Enable knowledge sharing between teams
-- Maintain query documentation and best practices
-
-## 🚦 API Endpoints
-
-### Queries
-- `GET /api/queries` - List user queries
-- `POST /api/queries` - Create new query
-- `GET /api/queries/[id]` - Get specific query
-- `PUT /api/queries/[id]` - Update query
-- `DELETE /api/queries/[id]` - Delete query
-- `PATCH /api/queries/[id]/visibility` - Toggle visibility
-
-### Public Queries
-- `GET /api/queries/public` - List all public queries
-- `GET /public` - Public queries page (no auth required)
-
-### Authentication
-- `POST /api/auth/signin` - User login
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/signout` - User logout
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run specific test file
-npm test -- visibility.test.ts
-```
-
-## 📱 Features in Detail
-
-### Query Visibility System
-- **Private Queries**: Only visible to the owner
-- **Public Queries**: Visible to all users in the public feed
-- **Owner Controls**: Toggle visibility with a single click
-- **Security**: Database-level access control ensures data privacy
-
-### Tag Management
-- Create custom tags for query organization
-- Color-coded tag system for visual organization
-- Filter queries by single or multiple tags
-- Automatic tag suggestions based on query content
-
-### Version Control
-- Track all changes to queries over time
-- Compare different versions side-by-side
-- Restore previous versions when needed
-- Maintain complete audit trail
-
-## 🎨 Customization
-
-### Themes
-The application supports both light and dark themes. Toggle using the sun/moon icon in the header.
-
-### Tags
-Create custom tags with:
-- Custom names and descriptions
-- Color coding for visual organization
-- Hierarchical categorization
-
-### Storage
-All data is stored locally in your browser's localStorage. To backup your data:
-1. Use the export feature to download a JSON file
-2. Import the file on any device to restore your queries
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to [Vercel](https://vercel.com)
-3. Deploy with zero configuration
-
-### Other Platforms
-The application can be deployed on any platform that supports Next.js:
-- Netlify
-- AWS Amplify
-- Railway
-- Render
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
-- Code style and standards
-- Pull request process
-- Issue reporting
-- Development setup
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🆘 Support
-
-- **Documentation**: Check the `/docs` folder for detailed guides
-- **Issues**: Report bugs via [GitHub Issues](https://github.com/ilesanmi-007/SQL-Query-Manager/issues)
-- **Discussions**: Join community discussions in GitHub Discussions
-- **Email**: ilesanmi3451@gmail.com
-
-## 🗺️ Roadmap
-
-### Upcoming Features
-- **Query Execution**: Direct database connection and query execution
-- **Result Visualization**: Charts and graphs for query results
-- **Team Workspaces**: Shared spaces for team collaboration
-- **Query Templates**: Reusable query patterns and snippets
-- **Advanced Analytics**: Query performance tracking and optimization
-- **Export/Import**: Backup and migration tools
-- **API Integration**: REST API for external tool integration
-
-### Long-term Vision
-- **Multi-database Support**: Connect to various database types
-- **Real-time Collaboration**: Live editing and sharing
-- **AI-powered Suggestions**: Smart query completion and optimization
-- **Enterprise Features**: SSO, audit logs, and compliance tools
+A concise, beginner‑friendly guide to understand, run, extend and debug the sql-query-manager codebase.
 
 ---
 
-**Built with ❤️ by [Ilesanmi](https://github.com/ilesanmi-007)**
+## Purpose (one sentence)
+Next.js app to create, version, tag, save and share SQL queries — local fallback storage with optional Supabase backend and role-based access (user/admin).
 
-*Transform your SQL workflow with intelligent query management and seamless collaboration.*
+---
+
+## Important files & folders
+- src/app/page.tsx — Main query editor / home UI (client).  
+- src/app/saved/page.tsx — Saved queries listing and user/admin UI.  
+- src/app/auth/* — Sign-in / sign-up pages.  
+- src/utils/* — export/import, SQL validation, tag manager.  
+- supabase-schema.sql — DB schema + RLS policies for Supabase.  
+- .env.local — Environment vars (Supabase, NextAuth).  
+- src/types — TypeScript types (User, Query, QueryVersion).  
+- package.json — scripts and dependencies.  
+- README.md — this file.
+
+---
+
+## Quick start (macOS)
+1. Install dependencies:
+   ```bash
+   cd /Users/ilesanmi/Playground/sql-query-manager
+   npm install
+   ```
+2. Configure env:
+   - Copy `.env.local.example` → `.env.local`.
+   - Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (server only), NEXTAUTH_URL, NEXTAUTH_SECRET.
+3. Run dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open: http://localhost:3000
+
+---
+
+## Database & Supabase (high level)
+- Use Supabase Auth + a small profiles table (do not store raw passwords).
+- Apply the SQL in `supabase-schema.sql` via Supabase SQL Editor or CLI.
+- Create admin by creating an auth user (Auth → Users) and setting `is_admin = true` in `profiles`/`users` via SQL Editor (requires service role or Dashboard).
+
+Seed admin example (run in SQL Editor after creating auth user):
+```sql
+INSERT INTO public.profiles (id, name, is_admin)
+VALUES ('<AUTH_USER_ID>', 'Admin User', TRUE);
+```
+
+Notes:
+- Store images in Supabase Storage; save storage paths in `queries.result_image`.
+- Use `auth.uid()` in RLS policies to enforce owner/admin rules.
+
+---
+
+## Authentication & sessions
+- Recommended: Supabase Auth or NextAuth with Supabase adapter.
+- Ensure callbacks set user id into JWT/token and session:
+  - jwt callback: set token.id = user.id || user.sub
+  - session callback: set session.user.id = token.id
+- Check session in browser:
+  ```js
+  fetch('/api/auth/session').then(r=>r.json()).then(console.log)
+  ```
+
+If session.user.id is missing:
+- Verify NextAuth callbacks, env vars (NEXTAUTH_SECRET, NEXTAUTH_URL), and restart server.
+
+---
+
+## StorageManager adapter (concept)
+Implement two adapters:
+- LocalStorageManager — current browser fallback.
+- SupabaseStorageManager — real backend.
+
+Essential methods:
+- register, login, logout, getCurrentUser
+- saveQuery, listUserQueries, updateQuery, deleteQuery
+- listPublicQueries, listAllQueries (admin)
+- setQueryVisibility(queryId, visibility, userId)
+
+Switch backend via env var presence (use Supabase when NEXT_PUBLIC_SUPABASE_URL is set).
+
+---
+
+## Queries data model (key fields)
+- id, name, sql, description, result, result_image (storage path), user_id, visibility ('public'|'private'), created_at, last_edited, versions (JSON), current_version, tags, is_favorite.
+
+---
+
+## RLS & authorization (recommended policies)
+- SELECT on queries: allow if visibility='public' OR auth.uid()=user_id OR user is admin.
+- INSERT: require auth.uid() = user_id (or admin/server).
+- UPDATE/DELETE: require auth.uid() = user_id (or admin).
+- Admin-only actions: use service role or server endpoints.
+
+---
+
+## Frontend checklist (where to update)
+- src/app/page.tsx: load currentUser on mount, show admin controls only when isAdmin, save queries with userId and visibility.
+- src/app/saved/page.tsx: show listUserQueries(currentUser.id) and admin panel for listAllQueries.
+- src/app/auth/*: implement register/login using StorageManager and show loading/error states.
+
+---
+
+## Testing
+- Unit tests:
+  - Auth flow (register/login/session persistence) — mock Supabase/adapter
+  - Ownership enforcement (only owner can edit/delete/toggle visibility)
+  - Public feed listing
+- Test command:
+  ```bash
+  npm test
+  ```
+
+---
+
+## Common commands & snippets
+- Restart dev server:
+  ```bash
+  npm run dev
+  ```
+- Generate bcrypt hash (local seed):
+  ```bash
+  npx -p bcryptjs node -e "console.log(require('bcryptjs').hashSync('admin123', 12))"
+  ```
+
+---
+
+## Troubleshooting checklist
+- No session ID: check NextAuth callbacks, env vars, restart server.
+- RLS blocking requests: use the Supabase SQL Editor policy tester; temporarily disable RLS for debugging.
+- Missing API keys: Dashboard → Project Settings → API → reveal keys.
+- Uploads not showing: verify storage bucket permissions and returned paths/URLs.
+- Runtime JSX/parse errors: check component syntax and imports, restart dev server.
+
+---
+
+## Suggested roadmap (small)
+1. Implement StorageManager adapter (local + Supabase).  
+2. Integrate auth into UI and persist session.  
+3. Add is_admin flag and admin dashboard.  
+4. Add `visibility` with owner-only toggle and public feed.  
+5. Add combined RLS policies and tests.  
+
+---
+
+If you want, I can:
+- scaffold the StorageManager adapter files and method stubs, or
+- produce the exact SQL migration for profiles + queries + RLS,
+- inspect a specific file (NextAuth config) and propose exact edits.
+
+Which do you want next?
+```<!-- filepath: /Users/ilesanmi/Playground/sql-query-manager/README.md -->
+# SQL Query Manager — Developer Quick Reference
+
+A concise, beginner‑friendly guide to understand, run, extend and debug the sql-query-manager codebase.
+
+---
+
+## Purpose (one sentence)
+Next.js app to create, version, tag, save and share SQL queries — local fallback storage with optional Supabase backend and role-based access (user/admin).
+
+---
+
+## Important files & folders
+- src/app/page.tsx — Main query editor / home UI (client).  
+- src/app/saved/page.tsx — Saved queries listing and user/admin UI.  
+- src/app/auth/* — Sign-in / sign-up pages.  
+- src/utils/* — export/import, SQL validation, tag manager.  
+- supabase-schema.sql — DB schema + RLS policies for Supabase.  
+- .env.local — Environment vars (Supabase, NextAuth).  
+- src/types — TypeScript types (User, Query, QueryVersion).  
+- package.json — scripts and dependencies.  
+- README.md — this file.
+
+---
+
+## Quick start (macOS)
+1. Install dependencies:
+   ```bash
+   cd /Users/ilesanmi/Playground/sql-query-manager
+   npm install
+   ```
+2. Configure env:
+   - Copy `.env.local.example` → `.env.local`.
+   - Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (server only), NEXTAUTH_URL, NEXTAUTH_SECRET.
+3. Run dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open: http://localhost:3000
+
+---
+
+## Database & Supabase (high level)
+- Use Supabase Auth + a small profiles table (do not store raw passwords).
+- Apply the SQL in `supabase-schema.sql` via Supabase SQL Editor or CLI.
+- Create admin by creating an auth user (Auth → Users) and setting `is_admin = true` in `profiles`/`users` via SQL Editor (requires service role or Dashboard).
+
+Seed admin example (run in SQL Editor after creating auth user):
+```sql
+INSERT INTO public.profiles (id, name, is_admin)
+VALUES ('<AUTH_USER_ID>', 'Admin User', TRUE);
+```
+
+Notes:
+- Store images in Supabase Storage; save storage paths in `queries.result_image`.
+- Use `auth.uid()` in RLS policies to enforce owner/admin rules.
+
+---
+
+## Authentication & sessions
+- Recommended: Supabase Auth or NextAuth with Supabase adapter.
+- Ensure callbacks set user id into JWT/token and session:
+  - jwt callback: set token.id = user.id || user.sub
+  - session callback: set session.user.id = token.id
+- Check session in browser:
+  ```js
+  fetch('/api/auth/session').then(r=>r.json()).then(console.log)
+  ```
+
+If session.user.id is missing:
+- Verify NextAuth callbacks, env vars (NEXTAUTH_SECRET, NEXTAUTH_URL), and restart server.
+
+---
+
+## StorageManager adapter (concept)
+Implement two adapters:
+- LocalStorageManager — current browser fallback.
+- SupabaseStorageManager — real backend.
+
+Essential methods:
+- register, login, logout, getCurrentUser
+- saveQuery, listUserQueries, updateQuery, deleteQuery
+- listPublicQueries, listAllQueries (admin)
+- setQueryVisibility(queryId, visibility, userId)
+
+Switch backend via env var presence (use Supabase when NEXT_PUBLIC_SUPABASE_URL is set).
+
+---
+
+## Queries data model (key fields)
+- id, name, sql, description, result, result_image (storage path), user_id, visibility ('public'|'private'), created_at, last_edited, versions (JSON), current_version, tags, is_favorite.
+
+---
+
+## RLS & authorization (recommended policies)
+- SELECT on queries: allow if visibility='public' OR auth.uid()=user_id OR user is admin.
+- INSERT: require auth.uid() = user_id (or admin/server).
+- UPDATE/DELETE: require auth.uid() = user_id (or admin).
+- Admin-only actions: use service role or server endpoints.
+
+---
+
+## Frontend checklist (where to update)
+- src/app/page.tsx: load currentUser on mount, show admin controls only when isAdmin, save queries with userId and visibility.
+- src/app/saved/page.tsx: show listUserQueries(currentUser.id) and admin panel for listAllQueries.
+- src/app/auth/*: implement register/login using StorageManager and show loading/error states.
+
+---
+
+## Testing
+- Unit tests:
+  - Auth flow (register/login/session persistence) — mock Supabase/adapter
+  - Ownership enforcement (only owner can edit/delete/toggle visibility)
+  - Public feed listing
+- Test command:
+  ```bash
+  npm test
+  ```
+
+---
+
+## Common commands & snippets
+- Restart dev server:
+  ```bash
+  npm run dev
+  ```
+- Generate bcrypt hash (local seed):
+  ```bash
+  npx -p bcryptjs node -e "console.log(require('bcryptjs').hashSync('admin123', 12))"
+  ```
+
+---
+
+## Troubleshooting checklist
+- No session ID: check NextAuth callbacks, env vars, restart server.
+- RLS blocking requests: use the Supabase SQL Editor policy tester; temporarily disable RLS for debugging.
+- Missing API keys: Dashboard → Project Settings → API → reveal keys.
+- Uploads not showing: verify storage bucket permissions and returned paths/URLs.
+- Runtime JSX/parse errors: check component syntax and imports, restart dev server.
+
+---
+
+## Suggested roadmap (small)
+1. Implement StorageManager adapter (local + Supabase).  
+2. Integrate auth into UI and persist session.  
+3. Add is_admin flag and admin dashboard.  
+4. Add `visibility` with owner-only toggle and public feed.  
+5. Add combined RLS policies and tests.  

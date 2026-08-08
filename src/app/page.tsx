@@ -1,199 +1,72 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PhotoIcon, XMarkIcon, StarIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon, SwatchIcon } from '@heroicons/react/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
-import { TagManager } from '../utils/tagManager';
-import { storage } from '../lib/storage';
-import { Query, Tag } from '../types';
+import { PlusIcon, CodeBracketIcon, DocumentTextIcon, TableCellsIcon, TagIcon, PhotoIcon, SunIcon, MoonIcon, SwatchIcon } from '@heroicons/react/24/outline';
 
-type ColorTheme = 'default' | 'ocean' | 'forest' | 'sunset' | 'purple' | 'rose' | 'amber' | 'teal' | 'indigo' | 'pink';
+interface QueryVersion {
+  version: number;
+  name: string;
+  sql: string;
+  description: string;
+  result: string;
+  resultImage?: string;
+  editedAt: string;
+  editedBy?: string;
+}
+
+interface Query {
+  id: number;
+  name: string;
+  sql: string;
+  description: string;
+  result: string;
+  resultImage?: string;
+  date: string;
+  timestamp: string;
+  lastEdited?: string;
+  versions?: QueryVersion[];
+  currentVersion: number;
+}
 
 export default function Home() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const [name, setName] = useState('');
   const [sql, setSql] = useState('');
   const [description, setDescription] = useState('');
   const [result, setResult] = useState('');
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [colorTheme, setColorTheme] = useState<ColorTheme>('ocean');
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  
-  // New state for enhanced features
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [visibility, setVisibility] = useState<'private' | 'public'>('private');
-  const [queryStatus, setQueryStatus] = useState<'draft' | 'published'>('published');
-  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-  const [newTagName, setNewTagName] = useState('');
-  const [showNewTagInput, setShowNewTagInput] = useState(false);
-  
-  // Notification state
-  const [notification, setNotification] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [colorTheme, setColorTheme] = useState<'default' | 'ocean' | 'forest' | 'sunset' | 'database'>('database');
 
   useEffect(() => {
-    if (status === 'loading') return;
-    
-    if (!session) {
-      router.push('/auth/signin');
-      return;
-    }
-
-    // Sync theme state with DOM and localStorage
     const savedTheme = localStorage.getItem('theme');
-    const savedColorTheme = localStorage.getItem('colorTheme') as ColorTheme;
+    const savedColorTheme = localStorage.getItem('colorTheme') as 'default' | 'ocean' | 'forest' | 'sunset' | 'database';
     
-    // Fix: Properly handle light mode
-    const isDark = savedTheme === 'dark' || (savedTheme === null);
-    
-    setIsDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    
-    // Set default theme if none exists
-    if (savedTheme === null) {
-      localStorage.setItem('theme', 'dark');
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     }
     
     if (savedColorTheme) {
       setColorTheme(savedColorTheme);
+      document.documentElement.setAttribute('data-theme', savedColorTheme);
     } else {
-      setColorTheme('ocean');
-      localStorage.setItem('colorTheme', 'ocean');
+      document.documentElement.setAttribute('data-theme', 'database');
     }
-    
-    // Load available tags
-    setAvailableTags(TagManager.getTags());
+  }, []);
 
-    // Listen for theme changes from other tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'theme') {
-        const newIsDark = e.newValue === 'dark';
-        setIsDarkMode(newIsDark);
-        if (newIsDark) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      }
-      if (e.key === 'colorTheme' && e.newValue) {
-        setColorTheme(e.newValue as ColorTheme);
-      }
-    };
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', newTheme);
+  };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [session, status, router]);
-
-  const changeColorTheme = (theme: ColorTheme) => {
+  const changeColorTheme = (theme: 'default' | 'ocean' | 'forest' | 'sunset' | 'database') => {
     setColorTheme(theme);
     localStorage.setItem('colorTheme', theme);
-  };
-
-  const getThemeColors = () => {
-    const themes = {
-      default: {
-        primary: 'bg-blue-600 hover:bg-blue-700',
-        accent: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
-        bg: 'bg-blue-50 dark:bg-gray-900',
-        focus: 'focus:ring-blue-500 focus:border-blue-500'
-      },
-      ocean: {
-        primary: 'bg-cyan-600 hover:bg-cyan-700',
-        accent: 'bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200',
-        bg: 'bg-cyan-50 dark:bg-gray-900',
-        focus: 'focus:ring-cyan-500 focus:border-cyan-500'
-      },
-      forest: {
-        primary: 'bg-emerald-600 hover:bg-emerald-700',
-        accent: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200',
-        bg: 'bg-emerald-50 dark:bg-gray-900',
-        focus: 'focus:ring-emerald-500 focus:border-emerald-500'
-      },
-      sunset: {
-        primary: 'bg-orange-600 hover:bg-orange-700',
-        accent: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
-        bg: 'bg-orange-50 dark:bg-gray-900',
-        focus: 'focus:ring-orange-500 focus:border-orange-500'
-      },
-      purple: {
-        primary: 'bg-purple-600 hover:bg-purple-700',
-        accent: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
-        bg: 'bg-purple-50 dark:bg-gray-900',
-        focus: 'focus:ring-purple-500 focus:border-purple-500'
-      },
-      rose: {
-        primary: 'bg-rose-600 hover:bg-rose-700',
-        accent: 'bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200',
-        bg: 'bg-rose-50 dark:bg-gray-900',
-        focus: 'focus:ring-rose-500 focus:border-rose-500'
-      },
-      amber: {
-        primary: 'bg-amber-600 hover:bg-amber-700',
-        accent: 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200',
-        bg: 'bg-amber-50 dark:bg-gray-900',
-        focus: 'focus:ring-amber-500 focus:border-amber-500'
-      },
-      teal: {
-        primary: 'bg-teal-600 hover:bg-teal-700',
-        accent: 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
-        bg: 'bg-teal-50 dark:bg-gray-900',
-        focus: 'focus:ring-teal-500 focus:border-teal-500'
-      },
-      indigo: {
-        primary: 'bg-indigo-600 hover:bg-indigo-700',
-        accent: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
-        bg: 'bg-indigo-50 dark:bg-gray-900',
-        focus: 'focus:ring-indigo-500 focus:border-indigo-500'
-      },
-      pink: {
-        primary: 'bg-pink-600 hover:bg-pink-700',
-        accent: 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
-        bg: 'bg-pink-50 dark:bg-gray-900',
-        focus: 'focus:ring-pink-500 focus:border-pink-500'
-      }
-    };
-    return themes[colorTheme];
-  };
-
-  const handleSqlChange = (value: string) => {
-    setSql(value);
-  };
-
-  // Tag management
-  const addTag = (tagId: string) => {
-    if (!selectedTags.includes(tagId)) {
-      setSelectedTags([...selectedTags, tagId]);
-    }
-  };
-
-  const removeTag = (tagId: string) => {
-    setSelectedTags(selectedTags.filter(id => id !== tagId));
-  };
-
-  const createNewTag = () => {
-    if (newTagName.trim()) {
-      try {
-        const newTag = TagManager.createTag(newTagName.trim());
-        setAvailableTags(TagManager.getTags());
-        setSelectedTags([...selectedTags, newTag.id]);
-        setNewTagName('');
-        setShowNewTagInput(false);
-      } catch {
-        alert('Tag already exists or invalid name');
-      }
-    }
+    document.documentElement.setAttribute('data-theme', theme);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,44 +80,13 @@ export default function Home() {
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (items) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-          const file = items[i].getAsFile();
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              setResultImage(event.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-          }
-          break;
-        }
-      }
-    }
-  };
-
   const removeImage = () => {
     setResultImage(null);
   };
 
   const saveQuery = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user) return;
-    
     setIsSubmitting(true);
-    
-    const userId = (session.user as any).id;
-    console.log('Session user:', session.user);
-    console.log('User ID from session:', userId);
-    
-    if (!userId) {
-      alert('User ID not found. Please log out and log back in.');
-      setIsSubmitting(false);
-      return;
-    }
     
     const newQuery: Query = {
       id: Date.now(),
@@ -256,11 +98,6 @@ export default function Home() {
       date: new Date().toISOString().split('T')[0],
       timestamp: new Date().toLocaleString(),
       currentVersion: 1,
-      tags: selectedTags,
-      isFavorite,
-      userId,
-      visibility: visibility,
-      status: status,
       versions: [{
         version: 1,
         name: name || `Query ${Date.now()}`,
@@ -268,361 +105,139 @@ export default function Home() {
         description,
         result,
         resultImage: resultImage || undefined,
-        editedAt: new Date().toLocaleString(),
-        tags: selectedTags,
-        isFavorite
+        editedAt: new Date().toLocaleString()
       }]
     };
     
-    try {
-      const response = await fetch('/api/queries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newQuery)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save query');
-      }
-
-      console.log('Query saved successfully');
-      
-      setName('');
-      setSql('');
-      setDescription('');
-      setResult('');
-      setResultImage(null);
-      setSelectedTags([]);
-      setIsFavorite(false);
-      setVisibility('private');
-      setQueryStatus('published');
-    } catch (error) {
-      console.error('Failed to save query:', error);
-      alert(`Failed to save query: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsSubmitting(false);
-    }
+    const saved = localStorage.getItem('sqlQueries');
+    const queries = saved ? JSON.parse(saved) : [];
+    const updated = [newQuery, ...queries];
+    localStorage.setItem('sqlQueries', JSON.stringify(updated));
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    setName('');
+    setSql('');
+    setDescription('');
+    setResult('');
+    setResultImage(null);
+    setIsSubmitting(false);
   };
 
-  if (status === 'loading') {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${getThemeColors().bg}`}>
-        <div className="text-lg text-gray-600 dark:text-gray-400">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null; // Will redirect in useEffect
-  }
-
-  const themeColors = getThemeColors();
-
   return (
-    <div className={`min-h-screen p-6 ${themeColors.bg}`}>
+    <div className="min-h-screen p-6">
       <div className="max-w-4xl mx-auto">
-        <nav className="mb-6">
+        <nav className="mb-8 animate-fade-in-up">
           <div className="flex justify-between items-center">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-1 inline-flex gap-1 shadow-sm">
-              <span className={`px-4 py-2 text-white rounded-md font-medium ${themeColors.primary}`}>
-                Write Query
+            <div className="glass-card rounded-2xl p-2 inline-flex gap-2">
+              <span className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium shadow-lg">
+                New Query
               </span>
-              <Link href="/saved" className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 rounded-md font-medium transition-colors">
-                All Queries
+              <Link href="/saved" className="px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-xl font-medium transition-all duration-200">
+                Saved Queries
               </Link>
-              <Link href="/public" className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 rounded-md font-medium transition-colors">
-                Public Queries
-              </Link>
-              {(session.user as any)?.isAdmin && (
-                <Link href="/admin" className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 rounded-md font-medium transition-colors">
-                  Admin
-                </Link>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="glass-card p-3 rounded-xl hover:shadow-lg transition-all duration-200"
+            >
+              {isDarkMode ? (
+                <SunIcon className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <MoonIcon className="w-5 h-5 text-gray-600" />
               )}
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {session.user?.email}
-              </span>
-              
-              {/* Color Theme Selector */}
-              <div className="relative group">
-                <button className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
-                  <SwatchIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
-                <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 min-w-[200px]">
-                  <div className="grid grid-cols-5 gap-3">
-                    {(['default', 'ocean', 'forest', 'sunset', 'purple', 'rose', 'amber', 'teal', 'indigo', 'pink'] as ColorTheme[]).map((theme) => (
-                      <button
-                        key={theme}
-                        onClick={() => changeColorTheme(theme)}
-                        className={`w-8 h-8 rounded-full border-2 hover:scale-110 transition-transform ${
-                          colorTheme === theme ? 'border-gray-800 dark:border-gray-200 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300 dark:border-gray-600'
-                        } ${
-                          theme === 'default' ? 'bg-blue-500' :
-                          theme === 'ocean' ? 'bg-cyan-500' :
-                          theme === 'forest' ? 'bg-emerald-500' :
-                          theme === 'sunset' ? 'bg-orange-500' :
-                          theme === 'purple' ? 'bg-purple-500' :
-                          theme === 'rose' ? 'bg-rose-500' :
-                          theme === 'amber' ? 'bg-amber-500' :
-                          theme === 'teal' ? 'bg-teal-500' :
-                          theme === 'indigo' ? 'bg-indigo-500' : 'bg-pink-500'
-                        }`}
-                        title={theme.charAt(0).toUpperCase() + theme.slice(1)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => signOut()}
-                className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              >
-                Sign Out
-              </button>
-            </div>
+            </button>
           </div>
         </nav>
 
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="text-center mb-12 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl mb-6 shadow-xl">
+            <CodeBracketIcon className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
             SQL Query Manager
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Create and organize your SQL queries
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Create, organize, and manage your SQL queries with style and efficiency
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-          <form onSubmit={saveQuery} className="space-y-6">
+        <div className="glass-card rounded-3xl p-8 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+          <form onSubmit={saveQuery} className="space-y-8">
             {/* Query Name */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 text-lg font-semibold text-gray-700">
+                <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                  <TagIcon className="w-5 h-5 text-white" />
+                </div>
                 Query Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 ${themeColors.focus} transition-colors text-gray-900 dark:text-gray-100`}
+                className="w-full p-6 border-2 border-gray-200 rounded-2xl bg-gradient-to-br from-gray-50 to-white focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300"
                 placeholder="e.g., Get Active Users, Monthly Sales Report..."
               />
             </div>
 
             {/* SQL Query Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 text-lg font-semibold text-gray-700">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <CodeBracketIcon className="w-5 h-5 text-white" />
+                </div>
                 SQL Query
               </label>
-              
-              <textarea
-                value={sql}
-                onChange={(e) => handleSqlChange(e.target.value)}
-                className={`w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 font-mono text-sm ${themeColors.focus} transition-colors resize-none text-gray-900 dark:text-gray-100`}
-                placeholder="SELECT * FROM users WHERE active = 1;"
-                rows={6}
-                required
-              />
-            </div>
-
-            {/* Tags, Favorite, Visibility & Status */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              {/* Tags */}
-              <div className="lg:col-span-2 space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Tags
-                </label>
-                
-                <div className="space-y-2">
-                  {/* Selected Tags */}
-                  {selectedTags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {selectedTags.map(tagId => {
-                        const tag = availableTags.find(t => t.id === tagId);
-                        return tag ? (
-                          <span
-                            key={tagId}
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${themeColors.accent}`}
-                          >
-                            {tag.name}
-                            <button
-                              type="button"
-                              onClick={() => removeTag(tagId)}
-                              className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded p-0.5"
-                            >
-                              <XMarkIcon className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-
-                  {/* Available Tags */}
-                  <div className="flex flex-wrap gap-1">
-                    {availableTags
-                      .filter(tag => !selectedTags.includes(tag.id))
-                      .slice(0, 6)
-                      .map(tag => (
-                        <button
-                          key={tag.id}
-                          type="button"
-                          onClick={() => addTag(tag.id)}
-                          className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                        >
-                          {tag.name}
-                        </button>
-                      ))}
-                    
-                    {/* New Tag Input */}
-                    {showNewTagInput ? (
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="text"
-                          value={newTagName}
-                          onChange={(e) => setNewTagName(e.target.value)}
-                          placeholder="Tag name"
-                          className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                          onKeyPress={(e) => e.key === 'Enter' && createNewTag()}
-                        />
-                        <button
-                          type="button"
-                          onClick={createNewTag}
-                          className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded"
-                        >
-                          <CheckCircleIcon className="w-3 h-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {setShowNewTagInput(false); setNewTagName('');}}
-                          className="p-1 text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded"
-                        >
-                          <XMarkIcon className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setShowNewTagInput(true)}
-                        className="px-2 py-1 border border-dashed border-gray-300 dark:border-gray-600 rounded text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        + New
-                      </button>
-                    )}
-                  </div>
+              <div className="relative">
+                <textarea
+                  value={sql}
+                  onChange={(e) => setSql(e.target.value)}
+                  className="w-full p-6 border-2 border-gray-200 rounded-2xl bg-gradient-to-br from-gray-50 to-white font-mono text-sm focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 resize-none"
+                  placeholder="SELECT * FROM users WHERE active = 1;"
+                  rows={8}
+                  required
+                />
+                <div className="absolute top-4 right-4 text-xs text-gray-400 bg-white px-2 py-1 rounded-lg">
+                  SQL
                 </div>
-              </div>
-
-              {/* Favorite */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Favorite
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  className="flex items-center gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
-                >
-                  {isFavorite ? (
-                    <StarIconSolid className="w-4 h-4 text-yellow-500" />
-                  ) : (
-                    <StarIcon className="w-4 h-4 text-gray-400" />
-                  )}
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {isFavorite ? 'Favorited' : 'Add to favorites'}
-                  </span>
-                </button>
-              </div>
-
-              {/* Visibility */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Visibility
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setVisibility(visibility === 'private' ? 'public' : 'private')}
-                  className="flex items-center gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
-                >
-                  {visibility === 'public' ? (
-                    <EyeIcon className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <EyeSlashIcon className="w-4 h-4 text-gray-400" />
-                  )}
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {visibility === 'public' ? 'Public' : 'Private'}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Status (Draft/Published) */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Status
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setQueryStatus('draft')}
-                  className={`flex-1 p-3 border rounded-lg transition-colors ${
-                    queryStatus === 'draft'
-                      ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <span className="text-sm font-medium">📝 Draft</span>
-                  <p className="text-xs mt-1 opacity-75">Save as work in progress</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setQueryStatus('published')}
-                  className={`flex-1 p-3 border rounded-lg transition-colors ${
-                    queryStatus === 'published'
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <span className="text-sm font-medium">✓ Published</span>
-                  <p className="text-xs mt-1 opacity-75">Ready to use</p>
-                </button>
               </div>
             </div>
 
             {/* Description Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 text-lg font-semibold text-gray-700">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                  <DocumentTextIcon className="w-5 h-5 text-white" />
+                </div>
                 Description
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className={`w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 ${themeColors.focus} transition-colors resize-none text-gray-900 dark:text-gray-100`}
-                placeholder="Describe what this query does..."
-                rows={3}
+                className="w-full p-6 border-2 border-gray-200 rounded-2xl bg-gradient-to-br from-gray-50 to-white focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 resize-none"
+                placeholder="Describe what this query does, its purpose, and any important notes..."
+                rows={4}
               />
             </div>
 
             {/* Sample Result */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 text-lg font-semibold text-gray-700">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                  <TableCellsIcon className="w-5 h-5 text-white" />
+                </div>
                 Sample Result
               </label>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Text Result */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Text Output</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Text Output</label>
                   <textarea
                     value={result}
                     onChange={(e) => setResult(e.target.value)}
-                    onPaste={handlePaste}
-                    className={`w-full p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 font-mono text-sm focus:ring-4 ${themeColors.focus} transition-all duration-300 resize-none text-gray-900 dark:text-gray-100`}
+                    className="w-full p-4 border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white font-mono text-sm focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 resize-none"
                     placeholder="Paste sample output or expected results here..."
                     rows={6}
                   />
@@ -630,7 +245,7 @@ export default function Home() {
 
                 {/* Image Result */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Result Screenshot</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Result Screenshot</label>
                   {!resultImage ? (
                     <div className="relative">
                       <input
@@ -639,14 +254,10 @@ export default function Home() {
                         onChange={handleImageUpload}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <div 
-                        className="w-full h-40 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 flex flex-col items-center justify-center hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-900/20 transition-all duration-300"
-                        onPaste={handlePaste}
-                        tabIndex={0}
-                      >
+                      <div className="w-full h-40 border-2 border-dashed border-gray-300 rounded-xl bg-gradient-to-br from-gray-50 to-white flex flex-col items-center justify-center hover:border-orange-400 hover:bg-orange-50/50 transition-all duration-300">
                         <PhotoIcon className="w-12 h-12 text-gray-400 mb-2" />
-                        <p className="text-gray-500 dark:text-gray-400 text-center">
-                          <span className="font-medium">Click to upload or paste image</span><br />
+                        <p className="text-gray-500 text-center">
+                          <span className="font-medium">Click to upload</span><br />
                           PNG, JPG up to 10MB
                         </p>
                       </div>
@@ -656,7 +267,7 @@ export default function Home() {
                       <img
                         src={resultImage}
                         alt="Query result"
-                        className="w-full h-40 object-cover rounded-xl border-2 border-gray-200 dark:border-gray-600"
+                        className="w-full h-40 object-cover rounded-xl border-2 border-gray-200"
                       />
                       <button
                         type="button"
@@ -675,12 +286,25 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-6 py-2 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed ${themeColors.primary} disabled:opacity-50`}
+                className="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isSubmitting ? 'Saving...' : 'Save Query'}
+                <div className="flex items-center gap-3">
+                  {isSubmitting ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <PlusIcon className="w-5 h-5" />
+                  )}
+                  {isSubmitting ? 'Saving Query...' : 'Save Query'}
+                </div>
               </button>
             </div>
           </form>
+        </div>
+
+        <div className="text-center mt-12 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+          <p className="text-gray-500">
+            Built with ❤️ for developers who love organized SQL queries -- Ilesanmi 
+          </p>
         </div>
       </div>
     </div>
